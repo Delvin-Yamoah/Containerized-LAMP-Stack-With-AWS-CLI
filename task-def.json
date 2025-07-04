@@ -1,0 +1,79 @@
+{
+  "family": "lamp-task",
+  "executionRoleArn": "arn:aws:iam::<your-aws-account-id>:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "<your-aws-account-id>.dkr.ecr.eu-west-1.amazonaws.com/lamp-app:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-1:<your-aws-account-id>:secret:lamp-mysql-credentials:password::"
+        }
+      ],
+      "environment": [
+        { "name": "DB_HOST", "value": "localhost" },
+        { "name": "DB_USER", "value": "root" },
+        { "name": "DB_NAME", "value": "counter_db" }
+      ],
+      "dependsOn": [
+        {
+          "containerName": "mysql",
+          "condition": "HEALTHY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lamp-app",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "app"
+        }
+      }
+    },
+    {
+      "name": "mysql",
+      "image": "<your-aws-account-id>.dkr.ecr.eu-west-1.amazonaws.com/lamp-db:latest",
+      "essential": true,
+      "secrets": [
+        {
+          "name": "MYSQL_ROOT_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-1:<your-aws-account-id>:secret:lamp-mysql-credentials:password::"
+        },
+        {
+          "name": "MYSQL_DATABASE",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-1:<your-aws-account-id>:secret:lamp-mysql-credentials:database::"
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -ppassword"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lamp-app",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "mysql"
+        }
+      }
+    }
+  ]
+}
