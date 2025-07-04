@@ -1,6 +1,6 @@
 # Containerized LAMP Visit Counter on AWS ECS (Fargate)
 
-# Link to my running app: http://34.255.208.192
+# Link to my running app: http://63.33.190.168
 
 This project deploys a lightweight, containerized LAMP (Linux, Apache, MySQL, PHP) stack application to AWS using **Amazon ECS with Fargate**. The application is a simple visit counter that increments on each page load.
 
