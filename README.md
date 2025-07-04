@@ -31,6 +31,8 @@ This project deploys a lightweight, containerized LAMP (Linux, Apache, MySQL, PH
 
 ---
 
+![Architectural Diagram](Architectural-Diagram.png)
+
 ## 🔒 Security Configuration
 
 ### Database Credentials with AWS Secrets Manager
